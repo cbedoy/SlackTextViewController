@@ -121,6 +121,7 @@ NS_CLASS_AVAILABLE_IOS(7_0) @interface SLKTextViewController : UIViewController 
 @property (nonatomic, readonly) SLKTextView *textView;
 @property (nonatomic, readonly) UIButton *leftButton;
 @property (nonatomic, readonly) UIButton *rightButton;
+@property (nonatomic, readonly) UIButton *extraButton;
 
 
 #pragma mark - Initialization
@@ -272,6 +273,15 @@ NS_CLASS_AVAILABLE_IOS(7_0) @interface SLKTextViewController : UIViewController 
  @param sender The object calling this method.
  */
 - (void)didPressLeftButton:(id _Nullable)sender;
+
+/**
+ Notifies the view controller when the extra button's action has been triggered, manually.
+ You can override this method to perform additional tasks associated with the left button.
+ You don't need call super since this method doesn't do anything.
+ 
+ @param sender The object calling this method.
+ */
+- (void)didPressExtraButton:(id _Nullable)sender;
 
 /**
  Notifies the view controller when the right button's action has been triggered, manually or by using the keyboard return key.

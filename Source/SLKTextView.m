@@ -13,6 +13,7 @@
 
 NSString * const SLKTextViewTextWillChangeNotification =            @"SLKTextViewTextWillChangeNotification";
 NSString * const SLKTextViewContentSizeDidChangeNotification =      @"SLKTextViewContentSizeDidChangeNotification";
+NSString * const SLKTextViewExtraButtonRequestNotification =        @"SLKTextViewExtraButtonRequestNotification";
 NSString * const SLKTextViewSelectedRangeDidChangeNotification =    @"SLKTextViewSelectedRangeDidChangeNotification";
 NSString * const SLKTextViewDidPasteItemNotification =              @"SLKTextViewDidPasteItemNotification";
 NSString * const SLKTextViewDidShakeNotification =                  @"SLKTextViewDidShakeNotification";

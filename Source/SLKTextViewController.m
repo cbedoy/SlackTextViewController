@@ -56,6 +56,8 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
 @property (nonatomic, strong) Class textViewClass;
 @property (nonatomic, strong) Class typingIndicatorViewClass;
 
+@property (nonatomic) BOOL isGifAction;
+
 @end
 
 @implementation SLKTextViewController
@@ -311,6 +313,7 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
         
         [_textInputbar.leftButton addTarget:self action:@selector(didPressLeftButton:) forControlEvents:UIControlEventTouchUpInside];
         [_textInputbar.rightButton addTarget:self action:@selector(didPressRightButton:) forControlEvents:UIControlEventTouchUpInside];
+        [_textInputbar.extraButton addTarget:self action:@selector(didPressExtraButton:) forControlEvents:UIControlEventTouchUpInside];
         [_textInputbar.editorLeftButton addTarget:self action:@selector(didCancelTextEditing:) forControlEvents:UIControlEventTouchUpInside];
         [_textInputbar.editorRightButton addTarget:self action:@selector(didCommitTextEditing:) forControlEvents:UIControlEventTouchUpInside];
         
@@ -369,6 +372,11 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
 - (UIButton *)rightButton
 {
     return _textInputbar.rightButton;
+}
+
+- (UIButton *)extraButton
+{
+    return _textInputbar.extraButton;
 }
 
 - (UIModalPresentationStyle)modalPresentationStyle
@@ -727,6 +735,27 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
 - (void)didPressLeftButton:(id)sender
 {
     // No implementation here. Meant to be overriden in subclass.
+}
+
+- (void)didPressExtraButton:(id)sender
+{
+    if (_isGifAction)
+    {
+        _foundPrefix = nil;
+        _foundWord = nil;
+        _isGifAction = NO;
+        
+        [self cancelAutoCompletion];
+    }
+    else
+    {
+        
+        _foundPrefix = @"gif";
+        _foundWord = @"";
+        _isGifAction = YES;
+        
+        [self didChangeAutoCompletionPrefix:self.foundPrefix andWord:self.foundWord];
+    }
 }
 
 - (void)didPressRightButton:(id)sender
@@ -1703,32 +1732,47 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
         return;
     }
     
-    [self.textView lookForPrefixes:self.registeredPrefixes
-                        completion:^(NSString *prefix, NSString *word, NSRange wordRange) {
-                            
-                            if (prefix.length > 0 && word.length > 0) {
-                                
-                                // Captures the detected symbol prefix
-                                _foundPrefix = prefix;
-                                
-                                // Removes the found prefix, or not.
-                                _foundWord = [word substringFromIndex:prefix.length];
-                                
-                                // Used later for replacing the detected range with a new string alias returned in -acceptAutoCompletionWithString:
-                                _foundPrefixRange = NSMakeRange(wordRange.location, prefix.length);
-                                
-                                [self slk_handleProcessedWord:word wordRange:wordRange];
-                            }
-                            else {
-                                [self cancelAutoCompletion];
-                            }
-                        }];
+    if(self.isGifAction)
+    {
+        // Captures the detected symbol prefix
+        _foundPrefix = @"gif";
+        
+        // Removes the found prefix, or not.
+        _foundWord = text;
+        
+        // Used later for replacing the detected range with a new string alias returned in -acceptAutoCompletionWithString:
+        _foundPrefixRange = NSMakeRange(0, text.length);
+        
+        [self slk_handleProcessedWord:text wordRange:NSMakeRange(0, text.length)];
+    }
+    else
+    {
+        [[self textView] lookForPrefixes:[self registeredPrefixes] completion:^(NSString *prefix, NSString *word, NSRange wordRange) {
+            if (prefix.length > 0 && word.length > 0) {
+                
+                // Captures the detected symbol prefix
+                _foundPrefix = prefix;
+                
+                // Removes the found prefix, or not.
+                _foundWord = [word substringFromIndex:prefix.length];
+                
+                // Used later for replacing the detected range with a new string alias returned in -acceptAutoCompletionWithString:
+                _foundPrefixRange = NSMakeRange(wordRange.location, prefix.length);
+                
+                [self slk_handleProcessedWord:word wordRange:wordRange];
+            }
+            else {
+                [self cancelAutoCompletion];
+            }
+
+        }];
+    }
 }
 
 - (void)slk_handleProcessedWord:(NSString *)word wordRange:(NSRange)wordRange
 {
     // Cancel auto-completion if the cursor is placed before the prefix
-    if (self.textView.selectedRange.location <= self.foundPrefixRange.location) {
+    if (self.textView.selectedRange.location <= self.foundPrefixRange.location && !self.isGifAction) {
         return [self cancelAutoCompletion];
     }
     
