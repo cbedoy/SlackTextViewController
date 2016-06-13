@@ -746,6 +746,10 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
         _isGifAction = NO;
         
         [self cancelAutoCompletion];
+        
+        [[NSNotificationCenter defaultCenter] postNotificationName:SLKTextViewExtraButtonRequestNotification
+                                                            object:nil];
+        
     }
     else
     {
@@ -755,6 +759,9 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
         _isGifAction = YES;
         
         [self didChangeAutoCompletionPrefix:self.foundPrefix andWord:self.foundWord];
+        
+        [[NSNotificationCenter defaultCenter] postNotificationName:SLKTextViewExtraButtonRequestNotification
+                                                            object:nil];
     }
 }
 
@@ -1728,10 +1735,6 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
 {
     NSString *text = self.textView.text;
     
-    if ((!self.isAutoCompleting && text.length == 0) || self.isTransitioning || ![self shouldProcessTextForAutoCompletion:text]) {
-        return;
-    }
-    
     if(self.isGifAction)
     {
         // Captures the detected symbol prefix
@@ -1743,10 +1746,17 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
         // Used later for replacing the detected range with a new string alias returned in -acceptAutoCompletionWithString:
         _foundPrefixRange = NSMakeRange(0, text.length);
         
+        [[self rightButton] setHidden:YES];
+        
         [self slk_handleProcessedWord:text wordRange:NSMakeRange(0, text.length)];
     }
     else
     {
+        if ((!self.isAutoCompleting && text.length == 0) || self.isTransitioning || ![self shouldProcessTextForAutoCompletion:text]) {
+            return;
+        }
+
+        
         [[self textView] lookForPrefixes:[self registeredPrefixes] completion:^(NSString *prefix, NSString *word, NSRange wordRange) {
             if (prefix.length > 0 && word.length > 0) {
                 
@@ -1764,7 +1774,8 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
             else {
                 [self cancelAutoCompletion];
             }
-
+            
+            [[self rightButton] setHidden:NO];
         }];
     }
 }
@@ -1776,26 +1787,35 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
         return [self cancelAutoCompletion];
     }
     
-    if (self.foundPrefix.length > 0) {
-        if (wordRange.length == 0 || wordRange.length != word.length) {
+    if (self.foundPrefix.length > 0 && !self.isGifAction)
+    {
+        if (wordRange.length == 0 || wordRange.length != word.length)
+        {
             return [self cancelAutoCompletion];
         }
         
-        if (word.length > 0) {
+        if (word.length > 0)
+        {
             // If the prefix is still contained in the word, cancels
-            if ([self.foundWord rangeOfString:self.foundPrefix].location != NSNotFound) {
+            if ([self.foundWord rangeOfString:self.foundPrefix].location != NSNotFound)
+            {
                 return [self cancelAutoCompletion];
             }
         }
-        else {
+        else
+        {
             return [self cancelAutoCompletion];
         }
     }
-    else {
+    else if(self.isGifAction)
+    {
+        [self didChangeAutoCompletionPrefix:self.foundPrefix andWord:self.foundWord];
+    }
+    else
+    {
         return [self cancelAutoCompletion];
     }
-    
-    [self didChangeAutoCompletionPrefix:self.foundPrefix andWord:self.foundWord];
+
 }
 
 - (void)slk_invalidateAutoCompletion
