@@ -43,6 +43,8 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
 
 @property (nonatomic, getter=isHidden) BOOL hidden; // Required override
 
+@property (nonatomic) BOOL isSearchingGif;
+
 @end
 
 @implementation SLKTextInputbar
@@ -372,7 +374,7 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
         }
     }
 
-    return [self.rightButton intrinsicContentSize].width;
+    return [self isSearchingGif] ? 0 : [self.rightButton intrinsicContentSize].width;
 }
 
 - (CGFloat)slk_appropriateRightButtonMargin
@@ -386,9 +388,9 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
         }
     }
     
-    self.extraButton.hidden = YES;
+    self.extraButton.hidden = [self isSearchingGif] ? NO : YES;
     
-    return self.contentInset.right;
+    return [self isSearchingGif] ? 0 : self.contentInset.right;
 }
 
 - (NSUInteger)slk_defaultNumberOfLines
@@ -644,7 +646,7 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
                               };
     
     
-    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-(left)-[leftButton(0)]-(<=left)-[textView]-(right)-[extraButton(40@40)]-(<=right)-[rightButton(0)]-(right)-|"
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-(left)-[leftButton(0)]-(<=left)-[textView]-(right)-[extraButton(0)]-(<=right)-[rightButton(0)]-(right)-|"
                                                                  options:0
                                                                  metrics:metrics
                                                                    views:views]];
@@ -656,7 +658,7 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
                                                                  options:0
                                                                  metrics:metrics
                                                                    views:views]];
-    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-(>=0)-[extraButton(40@40)]-(<=0)-|"
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-(>=0)-[extraButton(0)]-(0@750)-|"
                                                                  options:0
                                                                  metrics:metrics
                                                                    views:views]];
@@ -714,14 +716,25 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
         self.editorContentViewHC.constant = zero;
         
         CGSize leftButtonSize = [self.leftButton imageForState:self.leftButton.state].size;
+        CGSize extraButtonSize = [self.extraButton imageForState:self.extraButton.state].size;
         
-        if (leftButtonSize.width > 0) {
+        if (leftButtonSize.width > 0)
+        {
             self.leftButtonHC.constant = roundf(leftButtonSize.height);
+            self.bottomMarginWC.constant = roundf((self.intrinsicContentSize.height - leftButtonSize.height) / 2.0);
+        }
+        
+        if (extraButtonSize.width > 0)
+        {
+            self.extraButtonHC.constant = roundf(extraButtonSize.height);
             self.bottomMarginWC.constant = roundf((self.intrinsicContentSize.height - leftButtonSize.height) / 2.0);
         }
         
         self.leftButtonWC.constant = roundf(leftButtonSize.width);
         self.leftMarginWC.constant = (leftButtonSize.width > 0) ? self.contentInset.left : zero;
+        
+        self.extraButtonWC.constant = roundf(extraButtonSize.width);
+        self.extraMarginWC.constant = (extraButtonSize.width > 0) ? self.contentInset.left : zero;
         
         self.rightButtonWC.constant = [self slk_appropriateRightButtonWidth];
         self.rightMarginWC.constant = [self slk_appropriateRightButtonMargin];
@@ -760,6 +773,15 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
         }
     }
     else if ([object isEqual:self.leftButton.imageView] && [keyPath isEqualToString:NSStringFromSelector(@selector(image))]) {
+        
+        UIImage *newImage = change[NSKeyValueChangeNewKey];
+        UIImage *oldImage = change[NSKeyValueChangeOldKey];
+        
+        if (![newImage isEqual:oldImage]) {
+            [self slk_updateConstraintConstants];
+        }
+    }
+    else if ([object isEqual:self.extraButton.imageView] && [keyPath isEqualToString:NSStringFromSelector(@selector(image))]) {
         
         UIImage *newImage = change[NSKeyValueChangeNewKey];
         UIImage *oldImage = change[NSKeyValueChangeOldKey];
@@ -807,6 +829,7 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
     
     [self slk_unregisterFrom:self.layer forSelector:@selector(position)];
     [self slk_unregisterFrom:self.leftButton.imageView forSelector:@selector(image)];
+    [self slk_unregisterFrom:self.extraButton.imageView forSelector:@selector(image)];
     [self slk_unregisterFrom:self.rightButton.titleLabel forSelector:@selector(font)];
     
     _leftButton = nil;
@@ -835,7 +858,7 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
 
 -(void)slk_didReqestExtraButton:(id)notification
 {
-    
+    [self setIsSearchingGif:!_isSearchingGif];
 }
 
 @end
