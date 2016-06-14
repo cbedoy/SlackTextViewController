@@ -734,12 +734,6 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
             self.extraBottomMarginWC.constant = roundf((self.intrinsicContentSize.height - extraButtonSize.height) / 2.0);
         }
         
-        if (extraButtonSize.width > 0)
-        {
-            self.extraButtonHC.constant = roundf(extraButtonSize.height);
-            self.bottomMarginWC.constant = roundf((self.intrinsicContentSize.height - leftButtonSize.height) / 2.0);
-        }
-        
         self.leftButtonWC.constant = roundf(leftButtonSize.width);
         self.leftMarginWC.constant = (leftButtonSize.width > 0) ? self.contentInset.left : zero;
         
