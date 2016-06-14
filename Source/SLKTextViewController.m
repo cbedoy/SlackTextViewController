@@ -747,6 +747,10 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
         
         [self cancelAutoCompletion];
         
+        [[self textView] setText:nil];
+        
+        [self dismissKeyboard:YES];
+        
         [[NSNotificationCenter defaultCenter] postNotificationName:SLKTextViewExtraButtonRequestNotification
                                                             object:nil];
         

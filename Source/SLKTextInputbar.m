@@ -22,12 +22,13 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
 @property (nonatomic, strong) NSLayoutConstraint *leftButtonWC;
 @property (nonatomic, strong) NSLayoutConstraint *leftButtonHC;
 @property (nonatomic, strong) NSLayoutConstraint *leftMarginWC;
+@property (nonatomic, strong) NSLayoutConstraint *leftBottomMarginWC;
 
 @property (nonatomic, strong) NSLayoutConstraint *extraButtonWC;
 @property (nonatomic, strong) NSLayoutConstraint *extraButtonHC;
 @property (nonatomic, strong) NSLayoutConstraint *extraMarginWC;
+@property (nonatomic, strong) NSLayoutConstraint *extraBottomMarginWC;
 
-@property (nonatomic, strong) NSLayoutConstraint *bottomMarginWC;
 @property (nonatomic, strong) NSLayoutConstraint *rightButtonWC;
 @property (nonatomic, strong) NSLayoutConstraint *rightMarginWC;
 @property (nonatomic, strong) NSLayoutConstraint *rightButtonTopMarginC;
@@ -689,7 +690,9 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
     
     
     
-    self.bottomMarginWC = [self slk_constraintForAttribute:NSLayoutAttributeBottom firstItem:self secondItem:self.leftButton];
+    self.leftBottomMarginWC = [self slk_constraintForAttribute:NSLayoutAttributeBottom firstItem:self secondItem:self.leftButton];
+    
+    self.extraBottomMarginWC = [self slk_constraintForAttribute:NSLayoutAttributeBottom firstItem:self secondItem:self.extraButton];
     
     self.rightButtonWC = [self slk_constraintForAttribute:NSLayoutAttributeWidth firstItem:self.rightButton secondItem:nil];
     self.rightMarginWC = [self slk_constraintsForAttribute:NSLayoutAttributeTrailing][0];
@@ -708,7 +711,8 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
         self.leftButtonWC.constant = zero;
         self.leftButtonHC.constant = zero;
         self.leftMarginWC.constant = zero;
-        self.bottomMarginWC.constant = zero;
+        self.leftBottomMarginWC.constant = zero;
+        self.extraBottomMarginWC.constant = zero;
         self.rightButtonWC.constant = zero;
         self.rightMarginWC.constant = zero;
     }
@@ -721,7 +725,13 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
         if (leftButtonSize.width > 0)
         {
             self.leftButtonHC.constant = roundf(leftButtonSize.height);
-            self.bottomMarginWC.constant = roundf((self.intrinsicContentSize.height - leftButtonSize.height) / 2.0);
+            self.leftBottomMarginWC.constant = roundf((self.intrinsicContentSize.height - leftButtonSize.height) / 2.0);
+        }
+        
+        if (extraButtonSize.width > 0)
+        {
+            self.extraButtonHC.constant = roundf(extraButtonSize.height);
+            self.extraBottomMarginWC.constant = roundf((self.intrinsicContentSize.height - extraButtonSize.height) / 2.0);
         }
         
         if (extraButtonSize.width > 0)
@@ -848,7 +858,8 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
     _leftButtonWC = nil;
     _leftButtonHC = nil;
     _leftMarginWC = nil;
-    _bottomMarginWC = nil;
+    _leftBottomMarginWC = nil;
+    _extraBottomMarginWC = nil;
     _rightButtonWC = nil;
     _rightMarginWC = nil;
     _rightButtonTopMarginC = nil;
