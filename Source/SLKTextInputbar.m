@@ -19,6 +19,8 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
 
 @interface SLKTextInputbar ()
 
+@property (nonatomic, strong) UIView *hairlineView;
+
 @property (nonatomic, strong) NSLayoutConstraint *leftButtonWC;
 @property (nonatomic, strong) NSLayoutConstraint *leftButtonHC;
 @property (nonatomic, strong) NSLayoutConstraint *leftMarginWC;
@@ -80,6 +82,8 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
 
 - (void)slk_commonInit
 {
+    self.backgroundColor = [UIColor colorWithRed:247.0/255.0 green:247.0/255.0 blue:247.0/255.0 alpha:1.0]; //UIToolbar native bar tint color
+    
     self.charCountLabelNormalColor = [UIColor lightGrayColor];
     self.charCountLabelWarningColor = [UIColor redColor];
     
@@ -93,6 +97,7 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
     [self addSubview:self.extraButton];
     [self addSubview:self.textView];
     [self addSubview:self.charCountLabel];
+    [self addSubview:self.hairlineView];
     
     [self slk_setupViewConstraints];
     [self slk_updateConstraintConstants];
@@ -156,6 +161,16 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
         _textView.layer.borderColor =  [UIColor whiteColor].CGColor;
     }
     return _textView;
+}
+
+- (UIView *)hairlineView
+{
+    if (!_hairlineView) {
+        _hairlineView = [[UIView alloc] initWithFrame:CGRectMake(0.0, 0.0, [UIScreen mainScreen].bounds.size.width, 0.5)];
+        _hairlineView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleBottomMargin;
+        _hairlineView.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.3];
+    }
+    return _hairlineView;
 }
 
 - (SLKInputAccessoryView *)inputAccessoryView
@@ -412,7 +427,7 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
 
 - (void)setBackgroundColor:(UIColor *)color
 {
-    self.barTintColor = color;
+    [super setBackgroundColor:color];
     self.editorContentView.backgroundColor = color;
 }
 

@@ -1639,7 +1639,7 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
 - (BOOL)shouldProcessTextForAutoCompletion:(NSString *)text
 {
     if (!_registeredPrefixes || _registeredPrefixes.count == 0) {
-        return NO;
+        NSString *text = self.textView.text;
     }
     
     return YES;
@@ -1738,6 +1738,10 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
 - (void)slk_processTextForAutoCompletion
 {
     NSString *text = self.textView.text;
+    
+    if ((!self.isAutoCompleting && text.length == 0) || self.isTransitioning || ![self shouldProcessTextForAutoCompletion:text]) {
+        return;
+    }
     
     if(self.isGifAction)
     {
