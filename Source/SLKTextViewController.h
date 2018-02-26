@@ -509,6 +509,11 @@ NS_CLASS_AVAILABLE_IOS(7_0) @interface SLKTextViewController : UIViewController 
 - (void)cancelAutoCompletion;
 
 /**
+Cancels and hides the gif stuff, animated.
+ */
+- (void)cancelGifSearching;
+
+/**
  Accepts the autocompletion, replacing the detected word with a new string, keeping the prefix.
  This method is a convinience of -acceptAutoCompletionWithString:keepPrefix:
  

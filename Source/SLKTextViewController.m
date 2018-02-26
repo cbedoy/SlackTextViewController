@@ -1735,6 +1735,23 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
     [self slk_hideAutoCompletionViewIfNeeded];
 }
 
+ -(void)cancelGifSearching
+ {
+    if([self isGifAction])
+    {
+        [[NSNotificationCenter defaultCenter] postNotificationName:SLKTextViewExtraButtonRequestNotification
+                                                            object:nil];
+        _foundPrefix = nil;
+        _foundWord = nil;
+        _isGifAction = NO;
+        
+        [[self textView] setPlaceholder:@"Write your message..."];
+        [self cancelAutoCompletion];
+        [[self textView] setText:nil];
+        [self dismissKeyboard:YES];
+    }
+ }
+
 - (void)slk_processTextForAutoCompletion
 {
     NSString *text = self.textView.text;
